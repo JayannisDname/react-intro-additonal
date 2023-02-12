@@ -1,7 +1,86 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
+import Counters from "./components/Counters";
+import NavBar from "./components/NavBar";
 
-export default class App extends Component {
-  render() {
-    return <h1>Hello</h1>;
-  }
-}
+const App = () => {
+  const [counters, setCounters] = useState([
+    {
+      id: 1,
+      value: 3,
+    },
+    {
+      id: 2,
+      value: 5,
+    },
+    {
+      id: 3,
+      value: 7,
+    },
+  ]);
+
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleDelete = (id) => {
+    setCounters(setCounters.counters.filter((counter) => counter.id !== id));
+  };
+
+  const handleReset = () => {
+    setCounters(
+      counters.map((counter) => {
+        return {
+          ...counter,
+          value: 0,
+        };
+      })
+    );
+  };
+
+  const handleIncrement = (id) => {
+    setCounters(
+      counters.map((counter) => {
+        if (counter.id === id) {
+          return {
+            ...counter,
+            value: counter.value + 1,
+          };
+        }
+        return counter;
+      })
+    );
+  };
+
+  const handleDecrement = (id) => {
+    setCounters(
+      counters.map((counter) => {
+        if (counter.id === id) {
+          return {
+            ...counter,
+            value: counter.value - 1,
+          };
+        }
+        return counter;
+      })
+    );
+  };
+
+  const getCountersWithValue = () => {
+    return counters.filter((counter) => counter.value > 0).length;
+  };
+
+  return (
+    <div>
+      <NavBar totalCount={getCountersWithValue()} />
+      <div className="container">
+        <Counters
+          counters={counters}
+          onDelete={handleDelete}
+          onIncrement={handleIncrement}
+          onDecrement={handleDecrement}
+          onReset={handleReset}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default App;
