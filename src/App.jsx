@@ -1,85 +1,69 @@
-import React, { Component, useState } from "react";
-import Counters from "./components/Counters";
+import React from "react";
 import NavBar from "./components/NavBar";
+import Products from "./components/Products";
+import { CssBaseline, Container } from "@mui/material";
+import { useState } from "react";
+import { PRODUCTS_DATA } from "./data/products";
 
 const App = () => {
-  const [counters, setCounters] = useState([
-    {
-      id: 1,
-      value: 3,
-    },
-    {
-      id: 2,
-      value: 5,
-    },
-    {
-      id: 3,
-      value: 7,
-    },
-  ]);
+  const [products, setProducts] = useState(PRODUCTS_DATA);
+  const [cartItems, setCartItems] = useState([]);
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const addedCart = (product) => {
+    const cartItem = cartItems.find((item) => item.product.id === product.id);
 
-  const handleDelete = (id) => {
-    setCounters(setCounters.counters.filter((counter) => counter.id !== id));
+    if (cartItem) {
+      setCartItems(
+        cartItems.map((item) => {
+          if (item.product.id === product.id) {
+            return {
+              ...item,
+              quantity: item.quantity + 1,
+            };
+          }
+          return item;
+        })
+      );
+    } else {
+      setCartItems([...cartItems, { product, quantity: 1 }]);
+    }
   };
 
-  const handleReset = () => {
-    setCounters(
-      counters.map((counter) => {
-        return {
-          ...counter,
-          value: 0,
-        };
-      })
-    );
-  };
+  const removeCart = (product) => {
+    const cartItem = cartItems.find((item) => item.product.id === product.id);
 
-  const handleIncrement = (id) => {
-    setCounters(
-      counters.map((counter) => {
-        if (counter.id === id) {
-          return {
-            ...counter,
-            value: counter.value + 1,
-          };
-        }
-        return counter;
-      })
-    );
-  };
-
-  const handleDecrement = (id) => {
-    setCounters(
-      counters.map((counter) => {
-        if (counter.id === id) {
-          return {
-            ...counter,
-            value: counter.value - 1,
-          };
-        }
-        return counter;
-      })
-    );
-  };
-
-  const getCountersWithValue = () => {
-    return counters.filter((counter) => counter.value > 0).length;
+    if (cartItem.quantity === 1) {
+      setCartItems(
+        cartItems.filter((cartItem) => cartItem.product.id !== product.id)
+      );
+    } else {
+      setCartItems(
+        cartItems.map((item) => {
+          if (item.product.id === product.id) {
+            return {
+              ...item,
+              quantity: item.quantity - 1,
+            };
+          }
+          return item;
+        })
+      );
+    }
   };
 
   return (
-    <div>
-      <NavBar totalCount={getCountersWithValue()} />
-      <div className="container">
-        <Counters
-          counters={counters}
-          onDelete={handleDelete}
-          onIncrement={handleIncrement}
-          onDecrement={handleDecrement}
-          onReset={handleReset}
-        />
-      </div>
-    </div>
+    <>
+      <CssBaseline />
+      <NavBar numCartItems={cartItems.length} />
+      <Container sx={{ marginTop: 5 }}>
+        <Products
+          cartItems={cartItems}
+          onCart={addedCart}
+          onRemoveCart={removeCart}
+          products={products}
+        ></Products>
+      </Container>
+    </>
   );
 };
 
